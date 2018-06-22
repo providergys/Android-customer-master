@@ -338,7 +338,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     public void imageCropFunction() {
-
         // Image Crop Code
         try {
             Intent CropIntent = new Intent("com.android.camera.action.CROP");
@@ -361,7 +360,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     private void uploadImage(byte[] imageBytes) {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", "image.jpg", requestFile);
@@ -373,7 +371,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
+
                 hideLoader();
+
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {

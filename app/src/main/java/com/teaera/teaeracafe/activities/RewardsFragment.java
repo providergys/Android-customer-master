@@ -37,6 +37,7 @@ import com.teaera.teaeracafe.net.Response.UserProfileResponse;
 import com.teaera.teaeracafe.preference.CartPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.DialogUtils;
+import com.teaera.teaeracafe.utils.TinyDB;
 
 import java.util.ArrayList;
 
@@ -66,7 +67,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     private UserInfo userInfo;
     private int redeemCount = 0;
     private int balance = 0;
-
+  TinyDB tiny;
     private static final String TAG = "RewardsFragment";
 
     public RewardsFragment() {
@@ -83,6 +84,9 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         init();
+
+        tiny=new TinyDB( getActivity() );
+
     }
 
     private void init() {
@@ -129,6 +133,8 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             }
         }
 
+        Log.d( TAG, "updateProfile: "+rewards );
+
         redeemCount = (rewards - rewards % 10) / 10;
         if (redeemCount > 0) {
             for (int i=1; i<=redeemCount; i++) {
@@ -154,6 +160,16 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
                 drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
+                String reedemCount= drinkSpinner.getSelectedItem().toString();
+                Log.d( TAG, "onItemSelected: "+reedemCount );
+
+                if(reedemCount.contains(" ")){
+                    reedemCount= reedemCount.substring(0, reedemCount.indexOf(" "));
+                    Log.d( TAG, "onItemSelected: "+reedemCount );
+
+                    redeemCount=Integer.parseInt( reedemCount );
+
+                }
             }
 
             @Override
@@ -171,6 +187,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             drinkSpinner.setSelection(0);
         }
         drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
+
 
     }
 
@@ -279,12 +296,20 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             case R.id.redeemButton:
                 if (redeemCount > 0) {
+                    tiny.putString( "reddem_count",String.valueOf( redeemCount ) );
+                    tiny.putBoolean( "reddem_check",true );
+                    Log.d( TAG, "onClick: "+redeemCount );
                     ((MainActivity)getActivity()).rewardMenu();
+
+//                   UserInfo cartInfo = new UserInfo();
+//                   cartInfo.setRewardStar(redeemCount);
+//                   Log.d( TAG, "onClick: "+cartInfo.getRedeemed());
                 }
                 break;
 
             case R.id.orderButton:
                 break;
+
             case R.id.firstButton:
                 balance = 25;
                 getToken();

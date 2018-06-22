@@ -4,30 +4,19 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.IntentCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.braintreepayments.api.BraintreeFragment;
 import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
-import com.braintreepayments.api.dropin.utils.PaymentMethodType;
-import com.braintreepayments.api.exceptions.BraintreeError;
-import com.braintreepayments.api.exceptions.ErrorWithResponse;
-import com.braintreepayments.api.exceptions.InvalidArgumentException;
-import com.braintreepayments.api.interfaces.BraintreeCancelListener;
-import com.braintreepayments.api.interfaces.BraintreeErrorListener;
-import com.braintreepayments.api.interfaces.PaymentMethodNonceCreatedListener;
-import com.braintreepayments.api.interfaces.TokenizationParametersListener;
 import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
@@ -52,7 +41,6 @@ import com.teaera.teaeracafe.net.Model.OrderInfo;
 import com.teaera.teaeracafe.net.Model.UserInfo;
 import com.teaera.teaeracafe.net.Request.GenerateTokenRequest;
 import com.teaera.teaeracafe.net.Request.OrderRequest;
-import com.teaera.teaeracafe.net.Response.BaseResponse;
 import com.teaera.teaeracafe.net.Response.GenerateTokenResponse;
 import com.teaera.teaeracafe.net.Response.PlaceOrderResponse;
 import com.teaera.teaeracafe.preference.CartPrefs;
@@ -60,19 +48,14 @@ import com.teaera.teaeracafe.preference.LocationPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.Constants;
 import com.teaera.teaeracafe.utils.DialogUtils;
-import com.teaera.teaeracafe.utils.NonScrollListView;
+import com.teaera.teaeracafe.utils.TinyDB;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.braintreepayments.api.dropin.utils.PaymentMethodType.ANDROID_PAY;
 
 public class CartActivity extends BaseActivity
         implements View.OnClickListener, CartListAdapter.OnQuantityChangeListener, DialogInterface.OnClickListener {
@@ -92,8 +75,9 @@ public class CartActivity extends BaseActivity
     private TextView totalTextView;
     private TextView estimateTextView;
     private TextView noItemTextView;
-
+    private static final String TAG = "CartActivity";
     private CartListAdapter cartListAdapter;
+
     private ArrayList<LocationInfo> locations;
     private ArrayList<String> locationNames = new ArrayList<String>();
     private ArrayList<String> waitingTimes = new ArrayList<String>();
@@ -111,19 +95,23 @@ public class CartActivity extends BaseActivity
     private String subTotalStr;
     private String redeemCreditStr;
     private String taxAmountStr;
-    TextView textView4;
-    RelativeLayout relativeLayout11;
-
+    TinyDB         tinydb;
+    Boolean        aBooleanFreeDrinks;
+    private String strFreeDrinks="";
     private DialogInterface.OnClickListener onConfirmListner;
     private OrderInfo orderInfo;
-    private static final String TAG = "CartActivity";
 
     private PaymentsClient mPaymentsClient;
+
+    TextView textView4;
+    RelativeLayout relativeLayout11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
+        setContentView( R.layout.activity_cart);
+
+        tinydb=new TinyDB( CartActivity.this );
 
         locations = LocationPrefs.getLocations(this);
         for (int i = 0; i < locations.size(); i++) {
@@ -133,40 +121,40 @@ public class CartActivity extends BaseActivity
         carts = CartPrefs.getCarts(this);
         onConfirmListner = this;
 
-        mPaymentsClient = Wallet.getPaymentsClient(
-                        this, new Wallet.WalletOptions.Builder()
+        mPaymentsClient =
+                Wallet.getPaymentsClient(
+                        this,
+                        new Wallet.WalletOptions.Builder()
                                 .setEnvironment(WalletConstants.ENVIRONMENT_TEST)
                                 .build());
 
         init();
+
     }
 
     void init() {
 
-        redeemTextView = findViewById(R.id.redeemTextView);
-        rewardTextView = findViewById(R.id.rewardTextView);
-        subtotalTextView = findViewById(R.id.subtotalTextView);
-        creditTextView = findViewById(R.id.creditTextView);
-        taxTextView = findViewById(R.id.taxTextView);
-        totalTextView = findViewById(R.id.totalTextView);
-        estimateTextView = findViewById(R.id.estimateTextView);
-        noItemTextView = findViewById(R.id.noItemTextView);
-        relativeLayout11=findViewById( R.id.relativeLayout11 );
+        redeemTextView      = findViewById( R.id.redeemTextView);
+        rewardTextView      = findViewById( R.id.rewardTextView);
+        subtotalTextView    = findViewById( R.id.subtotalTextView);
+        creditTextView      = findViewById( R.id.creditTextView);
+        taxTextView         = findViewById( R.id.taxTextView);
+        totalTextView       = findViewById( R.id.totalTextView);
+        estimateTextView    = findViewById( R.id.estimateTextView);
+        noItemTextView      = findViewById( R.id.noItemTextView);
         textView4 = findViewById(R.id.tv_redeems);
-        textView4.setOnClickListener(this);
+        relativeLayout11=findViewById( R.id.relativeLayout11 );
 
-        locationSpinner = findViewById(R.id.locationSpinner);
+        locationSpinner     = findViewById( R.id.locationSpinner);
         locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-
                 locationTextView.setText(locationSpinner.getSelectedItem().toString());
                 Application.setLocation(position);
                 noItemTextView.setVisibility(View.GONE);
                 updateCartInfo(position);
                 cartListAdapter.updateCategories(sortedCarts);
                 cartListAdapter.notifyDataSetChanged();
-
             }
 
             @Override
@@ -178,27 +166,28 @@ public class CartActivity extends BaseActivity
         ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,locationNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         locationSpinner.setAdapter(adapter);
-        locationSpinner.setSelection(Application.getLocation());
-        updateCartInfo(Application.getLocation());
+        locationSpinner.setSelection( Application.getLocation());
+        updateCartInfo( Application.getLocation());
 
-        locationTextView = findViewById(R.id.locationTextView1);
+        locationTextView = findViewById( R.id.locationTextView1);
         locationTextView.setText(locationSpinner.getSelectedItem().toString());
 
-        cartListView = findViewById(R.id.cartListView);
+        cartListView = findViewById( R.id.cartListView);
         cartListAdapter = new CartListAdapter(this, sortedCarts);
         cartListView.setAdapter(cartListAdapter);
 
-        Button orderButton =  findViewById(R.id.orderButton);
+        Button orderButton =  findViewById( R.id.orderButton);
         orderButton.setOnClickListener(this);
-        Button addButton = findViewById(R.id.addButton);
+        Button addButton = findViewById( R.id.addButton);
         addButton.setOnClickListener(this);
-        Button redeemPlusButton = findViewById(R.id.redeemPlusButton);
+        Button redeemPlusButton = findViewById( R.id.redeemPlusButton);
         redeemPlusButton.setOnClickListener(this);
 
-
-        Button redeemMinusButton = findViewById(R.id.redeemMinusButton);
+//        TextView textView4 = findViewById( R.id.textView4);
+//        textView4.setOnClickListener(this);
+        Button redeemMinusButton = findViewById( R.id.redeemMinusButton);
         redeemMinusButton.setOnClickListener(this);
-        Button backButton = findViewById(R.id.backButton);
+        Button backButton = findViewById( R.id.backButton);
         backButton.setOnClickListener(this);
     }
 
@@ -212,8 +201,6 @@ public class CartActivity extends BaseActivity
         estimateTextView.setText("Current wait time: " + selectedWaitingTime + "mins");
 
         int rewards = UserPrefs.getUserInfo(this).getRewardStar();
-
-        Log.d( TAG, "updateCartInfo: "+ rewards);
         if (carts != null) {
             for (int i = 0; i<carts.size(); i++) {
                 if (carts.get(i).getRedeemed().equals("1")) {
@@ -241,7 +228,31 @@ public class CartActivity extends BaseActivity
 //            }
 //        }
 
-        availableRedeem = (rewards - rewards % 10) / 10;
+
+
+        System.out.println(  tinydb.getString( "reddem_count" )+"fgggggggggggggggh"+
+                tinydb.getBoolean( "reddem_check" ));
+
+        aBooleanFreeDrinks  = tinydb.getBoolean( "reddem_check" );
+        strFreeDrinks       = tinydb.getString( "reddem_count" );
+
+        if (aBooleanFreeDrinks){
+            availableRedeem = Integer.valueOf(strFreeDrinks);
+        }
+        else {
+            availableRedeem = (rewards - rewards % 10) / 10;
+        }
+
+        Log.d( TAG, "updateCartInfo: "+availableRedeem );
+        if (availableRedeem<=0){
+            relativeLayout11.setVisibility( View.GONE );
+            textView4.setText( "Currently no rewards available to redeem on the account" );
+        }
+        else {
+            relativeLayout11.setVisibility( View.VISIBLE );
+            redeemTextView.setText(Integer.toString(availableRedeem));
+        }
+
         calculateOrder();
     }
 
@@ -257,6 +268,7 @@ public class CartActivity extends BaseActivity
 
         if (sortedCarts.size() == 0) {
             noItemTextView.setVisibility(View.VISIBLE);
+
         } else {
             for (int i=0; i<sortedCarts.size(); i++) {
                 System.out.println(sortedCarts.get(i).getDrinkable()+"   ayaaaaaaaaaa     "+sortedCarts.get(i).getRedeemed());
@@ -266,52 +278,51 @@ public class CartActivity extends BaseActivity
                    rewards = rewards + Integer.parseInt(sortedCarts.get(i).getRewards()) * Integer.parseInt(sortedCarts.get(i).getQuantity());
                     UserInfo info = new UserInfo();
                     info.setRewardStar(rewards);
-                    info.setEmail(UserPrefs.getUserInfo(this).getEmail());
-                    info.setId(UserPrefs.getUserInfo(this).getId());
-                    info.setBalance(UserPrefs.getUserInfo(this).getBalance());
-                    info.setImage(UserPrefs.getUserInfo(this).getImage());
-                    info.setFirstname(UserPrefs.getUserInfo(this).getFirstname());
-                    info.setLastname(UserPrefs.getUserInfo(this).getLastname());
+                    info.setEmail( UserPrefs.getUserInfo(this).getEmail());
+                    info.setId( UserPrefs.getUserInfo(this).getId());
+                    info.setBalance( UserPrefs.getUserInfo(this).getBalance());
+                    info.setImage( UserPrefs.getUserInfo(this).getImage());
+                    info.setFirstname( UserPrefs.getUserInfo(this).getFirstname());
+                    info.setLastname( UserPrefs.getUserInfo(this).getLastname());
                     UserPrefs.saveUserInfo(this, info);
-
 
                 }
 
-                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeemed().equals("1")) {
+//                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeemed().equals("1")) {
+                if (sortedCarts.get(i).getDrinkable().equals("1")) {
                     // calculate redeemed free drink
                     redeems += 1;
                     float price = Float.parseFloat(sortedCarts.get(i).getPrice());
+                    Log.d( TAG, "Price: "+price +" "+redeemCredit+"Menu Id"+sortedCarts.get( i).getMenuId());
                     if (price > Constants.REWARD_MAX) {
-                        redeemCredit = redeemCredit + Constants.REWARD_MAX * Integer.parseInt(sortedCarts.get(i).getQuantity());
+//                        redeemCredit = redeemCredit + Constants.REWARD_MAX * Integer.parseInt(sortedCarts.get(i).getQuantity());
+
+                        redeemCredit =  Constants.REWARD_MAX * availableRedeem;
                     } else {
-                        redeemCredit = redeemCredit + price * Integer.parseInt(sortedCarts.get(i).getQuantity());
+//                        redeemCredit = redeemCredit + price * Integer.parseInt(sortedCarts.get(i).getQuantity());
+                        redeemCredit = price * Integer.parseInt(sortedCarts.get(i).getQuantity());
                     }
+
                 }
 
                 subTotal = subTotal + Float.parseFloat(sortedCarts.get(i).getPrice()) * Integer.parseInt(sortedCarts.get(i).getQuantity());
+                Log.d( TAG, "calculateOrder: "+" redeem"+redeemCredit+" Total" +subTotal);
             }
         }
 
-        this.subTotalStr = String.format("%.2f", subTotal);
-        this.redeemCreditStr = String.format("%.2f", redeemCredit);
-        this.taxAmountStr = String.format("%.2f", round((subTotal - redeemCredit) * storeTax, 2));
-        this.totalPriceStr = String.format("%.2f", round(subTotal + (subTotal-redeemCredit) * storeTax - redeemCredit, 2));
+        this.subTotalStr         = String.format("%.2f", subTotal);
+        this.redeemCreditStr     = String.format("%.2f", redeemCredit);
+        this.taxAmountStr        = String.format("%.2f", round((subTotal - redeemCredit) * storeTax, 2));
+        this.totalPriceStr       = String.format("%.2f", round(subTotal + (subTotal-redeemCredit) * storeTax - redeemCredit, 2));
 
         subtotalTextView.setText("$"+this.subTotalStr);
         creditTextView.setText("-$"+this.redeemCreditStr);
         taxTextView.setText("$"+this.taxAmountStr);
         totalTextView.setText("$"+this.totalPriceStr);
 
-        Log.d( TAG, "calculateOrder: "+redeems );
 
-        if (redeems<=0){
-            relativeLayout11.setVisibility( View.GONE );
-            textView4.setText( "Currently no rewards available to redeem on the account" );
-        }
-        else {
-            relativeLayout11.setVisibility( View.VISIBLE );
-            redeemTextView.setText(Integer.toString(redeems));
-        }
+
+        redeemTextView.setText(Integer.toString(availableRedeem));
         rewardTextView.setText(String.format("+%d", rewards));
     }
 
@@ -377,9 +388,12 @@ public class CartActivity extends BaseActivity
 
             case R.id.orderButton:
                 if (sortedCarts.size() == 0) {
-                    DialogUtils.showDialog(CartActivity.this, "Error", getString(R.string.empty_order), null, null);
+                    DialogUtils.showDialog(CartActivity.this, "Error", getString( R.string.empty_order), null, null);
                     return;
                 }
+
+                Log.d( TAG, "onClick: "+availableRedeem );
+
                 onBraintreeSubmit();
                 break;
 
@@ -390,45 +404,70 @@ public class CartActivity extends BaseActivity
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-                overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);
+                overridePendingTransition( R.anim.pull_in_left, R.anim.push_out_right);
                 break;
 
+
+
             case R.id.redeemMinusButton:
-                System.out.println("REWARDSSSS   "+UserPrefs.getUserInfo(this).getRewardStar());
+                if (availableRedeem == 0)
+                    return;
+                availableRedeem-=1;
+                redeemTextView.setText(Integer.toString(availableRedeem));
+
+                System.out.println("REWARDSSSS   "+ UserPrefs.getUserInfo(this).getRewardStar());
                 if (redeems == 0)
                     return;
-
                 redeems -= 1;
-                redeemTextView.setText("+ " + Integer.toString(redeems));
+                Log.d( TAG, "onClick: "+ Integer.toString(redeems));
                 calculateOrder();
                 break;
 
             case R.id.redeemPlusButton:
 
-                System.out.println(10 * redeems+1+"   REWARDSSSS   "+UserPrefs.getUserInfo(this).getRewardStar());
-                if (UserPrefs.getUserInfo(this).getRewardStar() >= 10 * redeems+1) {
+                int n = (UserPrefs.getUserInfo(this).getRewardStar() - UserPrefs.getUserInfo(this).getRewardStar() % 10) / 10;
+                Log.d( TAG, "onClick: rewww"+n );
+
+                if (aBooleanFreeDrinks){
+
+                    if (availableRedeem < Integer.valueOf( strFreeDrinks )) {
+                        availableRedeem += 1;
+                        redeemTextView.setText( Integer.toString( availableRedeem ) );
+                    }
+
                     redeems += 1;
-                    redeemTextView.setText("+ " + Integer.toString(redeems));
+                    Log.d( TAG, "onClick: " + Integer.toString( redeems ) );
                     calculateOrder();
+                }
+                else {
+
+                    if (availableRedeem<n){
+                        availableRedeem+=1;
+                        redeemTextView.setText(Integer.toString(availableRedeem));
+                    }
+
+                    System.out.println(10 * redeems+1+"   REWARDSSSS   "+ UserPrefs.getUserInfo(this).getRewardStar());
+                    if (UserPrefs.getUserInfo(this).getRewardStar() >= 10 * redeems+1) {
+                        redeems += 1;
+                        Log.d( TAG, "onClick: "+ Integer.toString(redeems));
+
+                        calculateOrder();
+                    }
                 }
 
                 break;
 
             case R.id.backButton:
                 finish();
-                overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);
+                overridePendingTransition( R.anim.pull_in_left, R.anim.push_out_right);
                 break;
         }
+
     }
 
     public void onBraintreeSubmit() {
 
-        if (!isNetworkConnected(this)) {
-            DialogUtils.showDialog(this, "Error", getString(R.string.internet_error), null, null);
-            return;
-        }
-
-        Application.getServerApi().generateClientToken(new GenerateTokenRequest(UserPrefs.getUserInfo(this).getId())).enqueue(new Callback<GenerateTokenResponse>(){
+        Application.getServerApi().generateClientToken(new GenerateTokenRequest( UserPrefs.getUserInfo(this).getId())).enqueue( new Callback<GenerateTokenResponse>(){
             @Override
             public void onResponse(Call<GenerateTokenResponse> call, Response<GenerateTokenResponse> response) {
                 hideLoader();
@@ -455,26 +494,29 @@ public class CartActivity extends BaseActivity
         });
     }
 
-
     private void sendOrderToServer(String nonce) {
 
         if (!isNetworkConnected(this)) {
-            DialogUtils.showDialog(this, "Error", getString(R.string.internet_error), null, null);
+            DialogUtils.showDialog(this, "Error", getString( R.string.internet_error), null, null);
             return;
         }
 
-        showLoader(R.string.empty);
-        Application.getServerApi().placeOrderToServer(new OrderRequest(UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(redeems), selectedWaitingTime, sortedCarts, nonce)).enqueue(new Callback<PlaceOrderResponse>(){
-
+        showLoader( R.string.empty);
+        Application.getServerApi().placeOrderToServer(new OrderRequest( UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(availableRedeem), selectedWaitingTime, sortedCarts, nonce)).enqueue( new Callback<PlaceOrderResponse>(){
             @Override
             public void onResponse(Call<PlaceOrderResponse> call, Response<PlaceOrderResponse> response) {
-                hideLoader();
+                try {
+                    hideLoader();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 if (response.body().isError()) {
                     DialogUtils.showDialog(CartActivity.this, "Error", response.body().getMessage(), null, null);
                 } else {
                     removeOrderCarts();
+                    tinydb.clear();
                     orderInfo = response.body().getOrderInfo();
-                    DialogUtils.showDialog(CartActivity.this, "Confirm", getString(R.string.success_order), onConfirmListner, onConfirmListner);
+                    DialogUtils.showDialog(CartActivity.this, "Confirm", getString( R.string.success_order), onConfirmListner, onConfirmListner);
                 }
             }
 
@@ -488,7 +530,6 @@ public class CartActivity extends BaseActivity
                 }
             }
         });
-
     }
 
     @Override
@@ -526,12 +567,12 @@ public class CartActivity extends BaseActivity
         cartListAdapter.notifyDataSetChanged();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
 
+              /********************* Here we recieve the Nonec from the Brain Tree *********************/
                 DropInResult result = data.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
                 // use the result to update your UI and send the payment method nonce to your server
 
@@ -547,19 +588,22 @@ public class CartActivity extends BaseActivity
 
                 PaymentMethodNonce nonce = result.getPaymentMethodNonce();
                 String stringNonce = nonce.getNonce();
-                Log.d("mylog", "Result: " + stringNonce);
+                Log.d("mylog1", "Result:1 " + stringNonce);
 
                 sendOrderToServer(stringNonce);
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // the user canceled
-                Log.d("mylog", "user canceled");
+                Log.d("mylog1", "user canceled1");
             } else {
                 // handle errors here, an exception may be available in
                 Exception error = (Exception) data.getSerializableExtra(DropInActivity.EXTRA_ERROR);
-                Log.d("mylog", "Error : " + error.toString());
+                Log.d("mylog1", "Error1 : " + error.toString());
             }
-        } else if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
+
+        }
+
+        else if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 PaymentData paymentData = PaymentData.getFromIntent(data);
                 String token = paymentData.getPaymentMethodToken().getToken();
@@ -608,14 +652,14 @@ public class CartActivity extends BaseActivity
                 });
     }
 
+    /////////////////////////////////////Success Payment/////////////////////////////////////
 
-    // Success Payment
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
         Intent intent = new Intent(this, OrderReceiptActivity.class);
         intent.putExtra("order", this.orderInfo);
         startActivity(intent);
-        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
+        overridePendingTransition( R.anim.pull_in_right, R.anim.push_out_left);
     }
 
     private PaymentDataRequest createPaymentDataRequest() {

@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 /**
  * Created by admin on 01/08/2017.
  */
-
 public class BaseActivity extends Activity {
 
     private SharedPreferences preferences;

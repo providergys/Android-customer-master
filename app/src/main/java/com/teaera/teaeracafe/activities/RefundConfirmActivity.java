@@ -26,6 +26,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.facebook.share.internal.DeviceShareDialogFragment.TAG;
+
 public class RefundConfirmActivity extends BaseActivity implements View.OnClickListener, RefundOrderAdapter.OnQuantityChangeListener, DialogInterface.OnClickListener {
 
     private TextView rewardTextView;
@@ -49,6 +51,9 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
     private String subTotalStr = "0.00";
     private String redeemCreditStr = "0.00";
     private String taxAmountStr= "0.00";
+    private String redeem= "0.00";
+
+    private static final String TAG = "RefundConfirmActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +67,9 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
             int quantity = Integer.parseInt(orderDetails.get(i).getQuantity()) - Integer.parseInt(orderDetails.get(i).getRefundQuantity());
             quantityArray.add(quantity);
             orderDetails.get(i).setQuantity(Integer.toString(quantity));
+
         }
+
 
         init();
     }
@@ -83,6 +90,7 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
         subTotalStr = orderInfo.getSubTotal();
         redeemCreditStr = orderInfo.getRewardsCredit();
         taxAmountStr = orderInfo.getTaxAmount();
+        redeem       = orderInfo.getRedeem();
         rewards = Integer.parseInt(orderInfo.getRewards());
 
         Button refundButton = findViewById(R.id.refundButton);
@@ -112,7 +120,7 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
         showLoader(R.string.empty);
 
 //       Application.getServerApi().refundOrders(new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), orderInfo.getSubTotal(), orderInfo.getRewardsCredit(), orderInfo.getTotalPrice(), orderInfo.getTax(), orderInfo.getTaxAmount(), orderInfo.getRewards(), orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
-        Application.getServerApi().refundOrders(new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), subTotalStr, redeemCreditStr, totalPriceStr, orderInfo.getTax(), taxAmountStr, Integer.toString(rewards), orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
+        Application.getServerApi().refundOrders(new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), subTotalStr, redeemCreditStr, totalPriceStr, orderInfo.getTax(), taxAmountStr, Integer.toString(rewards),redeem, orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
 
             @Override
             public void onResponse(Call<RefundOrdersResponse> call, Response<RefundOrdersResponse> response) {
@@ -122,8 +130,8 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
                 } else {
                     orderInfo = response.body().getOrder();
                     orderDetails = response.body().getOrderDetails();
-//                    updateOrderInfo();
-//                    updateRefundOrderDetails();
+                    updateOrderInfo();
+                    updateRefundOrderDetails();
                     DialogUtils.showDialog(RefundConfirmActivity.this, "Confirm", getString(R.string.success_refund_order), okListener, okListener);
                 }
             }
@@ -147,6 +155,8 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
 
             case R.id.refundButton:
                 if (!totalPriceStr.isEmpty() && Float.parseFloat(totalPriceStr) != 0) {
+
+                    Log.d( "TAG", "refundOrders: "+redeem );
                     refundOrders();
                 }
                 break;

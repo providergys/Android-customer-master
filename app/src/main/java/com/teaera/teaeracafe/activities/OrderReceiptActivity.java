@@ -71,9 +71,9 @@ public class OrderReceiptActivity extends BaseActivity implements View.OnClickLi
         orderNumberTextView         = findViewById(R.id.orderNumberTextView);
         locationTextView            = findViewById(R.id.locationTextView);
         estimateTextView            = findViewById(R.id.estimateTextView);
-        receivedDateTextView        =  findViewById(R.id.receivedDateTextView);
+        receivedDateTextView        = findViewById(R.id.receivedDateTextView);
         rewardTextView              = findViewById(R.id.rewardTextView);
-        subtotalTextView            =  findViewById(R.id.subtotalTextView);
+        subtotalTextView            = findViewById(R.id.subtotalTextView);
         creditTextView              = findViewById(R.id.creditTextView);
         taxTextView                 = findViewById(R.id.taxTextView);
         totalTextView               = findViewById(R.id.totalTextView);

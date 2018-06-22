@@ -18,9 +18,10 @@ public class RefundOrdersRequest {
     final String tax;
     final String taxAmount;
     final String rewards;
+    final String redeem;
     final ArrayList<OrderDetailsInfo> refundItems;
 
-    public RefundOrdersRequest(String userId, String orderId, String subTotal, String rewardsCredit, String total, String tax, String taxAmount, String rewards, ArrayList<OrderDetailsInfo> refundItems) {
+    public RefundOrdersRequest(String userId, String orderId, String subTotal, String rewardsCredit, String total, String tax, String taxAmount, String rewards, String redeem,ArrayList<OrderDetailsInfo> refundItems) {
         this.userId = userId;
         this.orderId = orderId;
         this.subTotal = subTotal;
@@ -29,6 +30,7 @@ public class RefundOrdersRequest {
         this.tax = tax;
         this.taxAmount = taxAmount;
         this.rewards = rewards;
+        this.redeem = redeem;
         this.refundItems = refundItems;
     }
 }
