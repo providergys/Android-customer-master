@@ -42,9 +42,12 @@ import com.teaera.teaeracafe.net.Model.UserInfo;
 import com.teaera.teaeracafe.net.Request.GenerateTokenRequest;
 import com.teaera.teaeracafe.net.Request.OrderRequest;
 import com.teaera.teaeracafe.net.Response.GenerateTokenResponse;
+import com.teaera.teaeracafe.net.Response.GetCategoryResponse;
 import com.teaera.teaeracafe.net.Response.PlaceOrderResponse;
 import com.teaera.teaeracafe.preference.CartPrefs;
+import com.teaera.teaeracafe.preference.CategoryPrefs;
 import com.teaera.teaeracafe.preference.LocationPrefs;
+import com.teaera.teaeracafe.preference.PromotedMenuPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.Constants;
 import com.teaera.teaeracafe.utils.DialogUtils;
@@ -112,6 +115,8 @@ public class CartActivity extends BaseActivity
         setContentView( R.layout.activity_cart);
 
         tinydb=new TinyDB( CartActivity.this );
+
+//        loadData();
 
         locations = LocationPrefs.getLocations(this);
         for (int i = 0; i < locations.size(); i++) {
@@ -450,7 +455,6 @@ public class CartActivity extends BaseActivity
                     if (UserPrefs.getUserInfo(this).getRewardStar() >= 10 * redeems+1) {
                         redeems += 1;
                         Log.d( TAG, "onClick: "+ Integer.toString(redeems));
-
                         calculateOrder();
                     }
                 }
@@ -458,8 +462,12 @@ public class CartActivity extends BaseActivity
                 break;
 
             case R.id.backButton:
+
+                loadData();
                 finish();
                 overridePendingTransition( R.anim.pull_in_left, R.anim.push_out_right);
+
+
                 break;
         }
 
@@ -636,10 +644,7 @@ public class CartActivity extends BaseActivity
                                 PaymentDataRequest request = createPaymentDataRequest();
                                 if (request != null) {
                                     AutoResolveHelper.resolveTask(
-                                            mPaymentsClient.loadPaymentData(request),
-                                            CartActivity.this,
-                                            // LOAD_PAYMENT_DATA_REQUEST_CODE is a constant value
-                                            // you define.
+                                            mPaymentsClient.loadPaymentData(request), CartActivity.this,
                                             LOAD_PAYMENT_DATA_REQUEST_CODE);
                                 }
 
@@ -693,5 +698,38 @@ public class CartActivity extends BaseActivity
 
         request.setPaymentMethodTokenizationParameters(params);
         return request.build();
+    }
+
+    private void loadData() {
+
+        showLoader(R.string.empty);
+        Application.getServerApi().getCategories().enqueue(new Callback<GetCategoryResponse>(){
+
+            @Override
+            public void onResponse(Call<GetCategoryResponse> call, Response<GetCategoryResponse> response) {
+                hideLoader();
+                if (response.body().isError()) {
+                    DialogUtils.showDialog(CartActivity.this, "Error", response.body().getMessage(), null, null);
+                } else {
+                    LocationPrefs.setLocations(CartActivity.this, response.body().getLocations());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GetCategoryResponse> call, Throwable t) {
+                hideLoader();
+                if (t.getLocalizedMessage() != null) {
+                    Log.d("Splash", t.getLocalizedMessage());
+                } else {
+                    Log.d("Splash", "Unknown error");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        loadData();
     }
 }

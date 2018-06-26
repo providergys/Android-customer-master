@@ -417,7 +417,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             case R.id.saveButton:
                 saveUserInfo();
                 break;
-
         }
     }
 
