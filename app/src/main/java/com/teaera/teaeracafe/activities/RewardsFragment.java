@@ -282,6 +282,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     public void showLoader(int resId) {
         dialog = ProgressDialog.show(getActivity(), "",
                 getString(resId), true);
+
         
     }
 
