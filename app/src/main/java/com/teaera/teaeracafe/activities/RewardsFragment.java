@@ -282,6 +282,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     public void showLoader(int resId) {
         dialog = ProgressDialog.show(getActivity(), "",
                 getString(resId), true);
+        
     }
 
     public void hideLoader() {
@@ -289,7 +290,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             dialog.dismiss();
         }
     }
-    
+
 
     @Override
     public void onClick(View v) {
