@@ -178,7 +178,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
-
         String[] separated = username.split(" ");
         if (separated.length < 2) {
             DialogUtils.showDialog(getActivity(), "Error", getString(R.string.enter_name), null, null);
@@ -208,9 +207,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                         DialogUtils.showDialog(getActivity(), "Confirm", response.body().getMessage(), null, null);
                         userInfo = response.body().getUser();
                         UserPrefs.saveUserInfo(getActivity(), userInfo);
-//                        updateEditable(false);
-
-
+//                      updateEditable(false);
                     }
                 }
 
@@ -228,8 +225,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void selectImage() {
-        final CharSequence[] items = { "Take Photo", "Choose from Library",
-                "Cancel" };
+        final CharSequence[] items = { "Take Photo", "Choose from Library", "Cancel" };
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Photo");
         builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -254,14 +250,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         builder.show();
     }
 
-    private void cameraIntent()
-    {
+    private void cameraIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_CAMERA);
     }
 
-    private void galleryIntent()
-    {
+    private void galleryIntent() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);//
@@ -297,7 +291,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
         if (data != null) {
@@ -305,7 +298,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             imageCropFunction();
         }
     }
-
 
     private void onCaptureImageResult(Intent data) {
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
@@ -438,7 +430,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             dialog.dismiss();
         }
     }
-
 
     private void loadProfile() {
         showLoader(R.string.empty);
