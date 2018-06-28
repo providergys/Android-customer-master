@@ -304,6 +304,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 //                   UserInfo cartInfo = new UserInfo();
 //                   cartInfo.setRewardStar(redeemCount);
 //                   Log.d( TAG, "onClick: "+cartInfo.getRedeemed());
+
                 }
                 break;
 
