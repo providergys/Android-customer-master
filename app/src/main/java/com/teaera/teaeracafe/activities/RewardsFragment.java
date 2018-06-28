@@ -289,6 +289,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             dialog.dismiss();
         }
     }
+    
 
     @Override
     public void onClick(View v) {
