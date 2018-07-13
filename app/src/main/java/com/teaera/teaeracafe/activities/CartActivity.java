@@ -147,8 +147,11 @@ public class CartActivity extends BaseActivity
         totalTextView       = findViewById( R.id.totalTextView);
         estimateTextView    = findViewById( R.id.estimateTextView);
         noItemTextView      = findViewById( R.id.noItemTextView);
-        textView4 = findViewById(R.id.tv_redeems);
-        relativeLayout11=findViewById( R.id.relativeLayout11 );
+
+        textView4           = findViewById(R.id.tv_redeems);
+        relativeLayout11    =findViewById( R.id.relativeLayout11 );
+
+        relativeLayout11.setVisibility( View.GONE );
 
         locationSpinner     = findViewById( R.id.locationSpinner);
         locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -248,13 +251,20 @@ public class CartActivity extends BaseActivity
             availableRedeem = (rewards - rewards % 10) / 10;
         }
 
+
+//        availableRedeem=0;
+
         Log.d( TAG, "updateCartInfo: "+availableRedeem );
-        if (availableRedeem<=0){
+
+        if (availableRedeem==0){
+            textView4.setVisibility( View.VISIBLE );
             relativeLayout11.setVisibility( View.GONE );
             textView4.setText( "Currently no rewards available to redeem on the account" );
         }
         else {
             relativeLayout11.setVisibility( View.VISIBLE );
+//            textView4.setVisibility( View.GONE );
+            textView4.setText( "Redeem Free Drink" );
             redeemTextView.setText(Integer.toString(availableRedeem));
         }
 
@@ -263,13 +273,14 @@ public class CartActivity extends BaseActivity
 
     private void calculateOrder() {
 
+
         redeems = 0;
         rewards = 0;
 
-        float totalPrice = 0;
-        float subTotal = 0;
-        float redeemCredit = 0;
-        float tax = 0;
+        float totalPrice    = 0;
+        float subTotal      = 0;
+        float redeemCredit  = 0;
+        float tax           = 0;
 
         if (sortedCarts.size() == 0) {
             noItemTextView.setVisibility(View.VISIBLE);
@@ -325,10 +336,14 @@ public class CartActivity extends BaseActivity
         taxTextView.setText("$"+this.taxAmountStr);
         totalTextView.setText("$"+this.totalPriceStr);
 
+        int nw_reward=rewards/10;
 
+        int nwAvailableReedeem=availableRedeem+nw_reward;
 
-        redeemTextView.setText(Integer.toString(availableRedeem));
+        redeemTextView.setText(Integer.toString(nwAvailableReedeem));
         rewardTextView.setText(String.format("+%d", rewards));
+
+        Log.d( TAG, "calculateOrder: Rewards"+rewards +nw_reward);
     }
 
     private void removeOrderCarts() {
@@ -604,8 +619,16 @@ public class CartActivity extends BaseActivity
                 // the user canceled
                 Log.d("mylog1", "user canceled1");
             } else {
-                // handle errors here, an exception may be available in
+
+                if (!isNetworkConnected(this)) {
+                    DialogUtils.showDialog(this, "Error", getString( R.string.internet_error), null, null);
+                    return;
+                }
+
                 Exception error = (Exception) data.getSerializableExtra(DropInActivity.EXTRA_ERROR);
+                DialogUtils.showDialog(this, "Error", error.toString(), null, null);
+                // handle errors here, an exception may be available in
+
                 Log.d("mylog1", "Error1 : " + error.toString());
             }
 
@@ -621,6 +644,15 @@ public class CartActivity extends BaseActivity
                 Log.d("mylog", "android pay canceled");
             } else if (resultCode == AutoResolveHelper.RESULT_ERROR){
                 Status status = AutoResolveHelper.getStatusFromIntent(data);
+
+                if (!isNetworkConnected(this)) {
+                    DialogUtils.showDialog(this, "Error", getString( R.string.internet_error), null, null);
+                    return;
+                }
+
+                Exception error = (Exception) data.getSerializableExtra(DropInActivity.EXTRA_ERROR);
+                DialogUtils.showDialog(this, "Error", error.toString(), null, null);
+                // handle errors here, an exception may be available in
                 // Log the status for debugging.
                 // Generally, there is no need to show an error to
                 // the user as the Google Payment API will do that.
@@ -702,12 +734,12 @@ public class CartActivity extends BaseActivity
 
     private void loadData() {
 
-        showLoader(R.string.empty);
+//        showLoader(R.string.empty);
         Application.getServerApi().getCategories().enqueue(new Callback<GetCategoryResponse>(){
 
             @Override
             public void onResponse(Call<GetCategoryResponse> call, Response<GetCategoryResponse> response) {
-                hideLoader();
+//                hideLoader();
                 if (response.body().isError()) {
                     DialogUtils.showDialog(CartActivity.this, "Error", response.body().getMessage(), null, null);
                 } else {
@@ -717,7 +749,7 @@ public class CartActivity extends BaseActivity
 
             @Override
             public void onFailure(Call<GetCategoryResponse> call, Throwable t) {
-                hideLoader();
+//                hideLoader();
                 if (t.getLocalizedMessage() != null) {
                     Log.d("Splash", t.getLocalizedMessage());
                 } else {

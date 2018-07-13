@@ -67,8 +67,12 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     private UserInfo userInfo;
     private int redeemCount = 0;
     private int balance = 0;
-  TinyDB tiny;
+    TinyDB tiny;
     private static final String TAG = "RewardsFragment";
+
+    int star=0,strStarLocalValue=0;
+    boolean aBoolean=true;
+    String strStar="";
 
     public RewardsFragment() {
         // Required empty public constructor
@@ -113,13 +117,14 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
         Button thirdButton = getActivity().findViewById(R.id.thirdButton);
         thirdButton.setOnClickListener(this);
 
+        loadProfile();
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        loadProfile();
     }
 
     private void updateProfile() {
@@ -144,7 +149,15 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             drinkOptions.add("No Free Drink");
         }
 
-        int star = rewards-redeemCount*10;
+        star = rewards-redeemCount*10;
+        if (strStarLocalValue!=0){
+
+            Log.d( TAG, "updateProfile: strStarLocalValue"+strStarLocalValue );
+            star = star+Integer.valueOf( strStarLocalValue);
+        }
+
+
+        Log.d( TAG, "updateProfile: "+star );
 
         if (star <= 5) {
             ratingBar1.setRating(star);
@@ -164,10 +177,11 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
                 Log.d( TAG, "onItemSelected: "+reedemCount );
 
                 if(reedemCount.contains(" ")){
+
                     reedemCount= reedemCount.substring(0, reedemCount.indexOf(" "));
                     Log.d( TAG, "onItemSelected: "+reedemCount );
 
-                    redeemCount=Integer.parseInt( reedemCount );
+                    redeemCount=Integer.parseInt(reedemCount);
 
                 }
             }
@@ -188,9 +202,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
         }
         drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
 
-
     }
-
 
     private void loadProfile() {
         showLoader(R.string.empty);
@@ -258,11 +270,21 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {
-//                    hideLoader();
+
+                    if (strStar.equalsIgnoreCase( "2" )){
+                        strStarLocalValue=strStarLocalValue+2;
+                    }
+                    else if (strStar.equalsIgnoreCase( "4" )){
+
+                        strStarLocalValue=strStarLocalValue+4;
+                    }
+
                     userInfo = response.body().getUser();
                     UserPrefs.saveUserInfo(getActivity(), userInfo);
                     updateProfile();
                     Toast.makeText( getActivity(), ""+response.body().getMessage(), Toast.LENGTH_SHORT ).show();
+                    Log.d( TAG, "onResponseAfter: "+star );
+
                 }
             }
 
@@ -276,13 +298,11 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
-
     }
 
     public void showLoader(int resId) {
         dialog = ProgressDialog.show(getActivity(), "",
                 getString(resId), true);
-
 
     }
 
@@ -291,7 +311,6 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             dialog.dismiss();
         }
     }
-
 
     @Override
     public void onClick(View v) {
@@ -321,11 +340,15 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             case R.id.secondButton:
                 balance = 50;
+                strStar="2";
+                Log.d( TAG, "onClick: "+star );
                 getToken();
                 break;
 
             case R.id.thirdButton:
                 balance = 100;
+                strStar="4";
+                Log.d( TAG, "onClick: "+star );
                 getToken();
                 break;
         }
