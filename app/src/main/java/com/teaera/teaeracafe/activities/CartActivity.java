@@ -320,6 +320,7 @@ public class CartActivity extends BaseActivity
                     }
 
                 }
+                
 
                 subTotal = subTotal + Float.parseFloat(sortedCarts.get(i).getPrice()) * Integer.parseInt(sortedCarts.get(i).getQuantity());
                 Log.d( TAG, "calculateOrder: "+" redeem"+redeemCredit+" Total" +subTotal);
