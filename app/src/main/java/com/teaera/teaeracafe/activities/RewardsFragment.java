@@ -181,8 +181,11 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
                     reedemCount= reedemCount.substring(0, reedemCount.indexOf(" "));
                     Log.d( TAG, "onItemSelected: "+reedemCount );
 
-                    redeemCount=Integer.parseInt(reedemCount);
+                    try{
+                        redeemCount=Integer.parseInt(reedemCount);
+                    }catch (Exception e){
 
+                    }
                 }
             }
 

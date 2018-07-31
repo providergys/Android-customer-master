@@ -320,7 +320,7 @@ public class CartActivity extends BaseActivity
                     }
 
                 }
-                
+
 
 
                 subTotal = subTotal + Float.parseFloat(sortedCarts.get(i).getPrice()) * Integer.parseInt(sortedCarts.get(i).getQuantity());
@@ -346,6 +346,7 @@ public class CartActivity extends BaseActivity
         rewardTextView.setText(String.format("+%d", rewards));
 
         Log.d( TAG, "calculateOrder: Rewards"+rewards +nw_reward);
+
     }
 
     private void removeOrderCarts() {
