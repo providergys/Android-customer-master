@@ -120,7 +120,7 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
         showLoader(R.string.empty);
 
 //       Application.getServerApi().refundOrders(new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), orderInfo.getSubTotal(), orderInfo.getRewardsCredit(), orderInfo.getTotalPrice(), orderInfo.getTax(), orderInfo.getTaxAmount(), orderInfo.getRewards(), orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
-        Application.getServerApi().refundOrders(new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), subTotalStr, redeemCreditStr, totalPriceStr, orderInfo.getTax(), taxAmountStr, Integer.toString(rewards),redeem, orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
+        Application.getServerApi().refundOrders("text/plain",new RefundOrdersRequest(UserPrefs.getUserInfo(this).getId(), orderInfo.getId(), subTotalStr, redeemCreditStr, totalPriceStr, orderInfo.getTax(), taxAmountStr, Integer.toString(rewards),redeem, orderDetails)).enqueue(new Callback<RefundOrdersResponse>(){
 
             @Override
             public void onResponse(Call<RefundOrdersResponse> call, Response<RefundOrdersResponse> response) {

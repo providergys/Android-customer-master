@@ -528,7 +528,7 @@ public class CartActivity extends BaseActivity
         }
 
         showLoader( R.string.empty);
-        Application.getServerApi().placeOrderToServer(new OrderRequest( UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(availableRedeem), selectedWaitingTime, sortedCarts, nonce)).enqueue( new Callback<PlaceOrderResponse>(){
+        Application.getServerApi().placeOrderToServer("text/plain",new OrderRequest( UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(availableRedeem), selectedWaitingTime, sortedCarts, nonce)).enqueue( new Callback<PlaceOrderResponse>(){
             @Override
             public void onResponse(Call<PlaceOrderResponse> call, Response<PlaceOrderResponse> response) {
                 try {

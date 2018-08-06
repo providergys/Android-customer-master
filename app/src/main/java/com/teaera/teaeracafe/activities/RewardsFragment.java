@@ -234,7 +234,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             }
         });
     }
-    
+
     private void getToken() {
         Application.getServerApi().generateClientToken(new GenerateTokenRequest(UserPrefs.getUserInfo(getActivity()).getId())).enqueue(new Callback<GenerateTokenResponse>(){
 
