@@ -45,9 +45,7 @@ import com.teaera.teaeracafe.net.Response.GenerateTokenResponse;
 import com.teaera.teaeracafe.net.Response.GetCategoryResponse;
 import com.teaera.teaeracafe.net.Response.PlaceOrderResponse;
 import com.teaera.teaeracafe.preference.CartPrefs;
-import com.teaera.teaeracafe.preference.CategoryPrefs;
 import com.teaera.teaeracafe.preference.LocationPrefs;
-import com.teaera.teaeracafe.preference.PromotedMenuPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.Constants;
 import com.teaera.teaeracafe.utils.DialogUtils;
@@ -149,7 +147,7 @@ public class CartActivity extends BaseActivity
         noItemTextView      = findViewById( R.id.noItemTextView);
 
         textView4           = findViewById(R.id.tv_redeems);
-        relativeLayout11    =findViewById( R.id.relativeLayout11 );
+        relativeLayout11    = findViewById( R.id.relativeLayout11 );
 
         relativeLayout11.setVisibility( View.GONE );
 
@@ -177,26 +175,25 @@ public class CartActivity extends BaseActivity
         locationSpinner.setSelection( Application.getLocation());
         updateCartInfo( Application.getLocation());
 
-        locationTextView = findViewById( R.id.locationTextView1);
+        locationTextView            = findViewById( R.id.locationTextView1);
         locationTextView.setText(locationSpinner.getSelectedItem().toString());
-
-        cartListView = findViewById( R.id.cartListView);
-        cartListAdapter = new CartListAdapter(this, sortedCarts);
+        cartListView                = findViewById( R.id.cartListView);
+        cartListAdapter             = new CartListAdapter(this, sortedCarts);
         cartListView.setAdapter(cartListAdapter);
-
-        Button orderButton =  findViewById( R.id.orderButton);
+        Button orderButton          =  findViewById( R.id.orderButton);
         orderButton.setOnClickListener(this);
-        Button addButton = findViewById( R.id.addButton);
+        Button addButton            = findViewById( R.id.addButton);
         addButton.setOnClickListener(this);
-        Button redeemPlusButton = findViewById( R.id.redeemPlusButton);
+        Button redeemPlusButton     = findViewById( R.id.redeemPlusButton);
         redeemPlusButton.setOnClickListener(this);
 
-//        TextView textView4 = findViewById( R.id.textView4);
-//        textView4.setOnClickListener(this);
-        Button redeemMinusButton = findViewById( R.id.redeemMinusButton);
+//      TextView textView4 = findViewById( R.id.textView4);
+//      textView4.setOnClickListener(this);
+        Button redeemMinusButton    = findViewById( R.id.redeemMinusButton);
         redeemMinusButton.setOnClickListener(this);
         Button backButton = findViewById( R.id.backButton);
         backButton.setOnClickListener(this);
+
     }
 
     private void updateCartInfo(int index) {
@@ -211,7 +208,7 @@ public class CartActivity extends BaseActivity
         int rewards = UserPrefs.getUserInfo(this).getRewardStar();
         if (carts != null) {
             for (int i = 0; i<carts.size(); i++) {
-                if (carts.get(i).getRedeemed().equals("1")) {
+                if (carts.get(i).getRedeem().equals("1")) {
                     rewards = rewards - Integer.parseInt(carts.get(i).getQuantity()) * 10;
                     rewardTextView.setText(String.valueOf(rewards));
                 }
@@ -236,10 +233,7 @@ public class CartActivity extends BaseActivity
 //            }
 //        }
 
-
-
-        System.out.println(  tinydb.getString( "reddem_count" )+"fgggggggggggggggh"+
-                tinydb.getBoolean( "reddem_check" ));
+        System.out.println(tinydb.getString( "reddem_count" )+"fgggggggggggggggh"+ tinydb.getBoolean( "reddem_check" ));
 
         aBooleanFreeDrinks  = tinydb.getBoolean( "reddem_check" );
         strFreeDrinks       = tinydb.getString( "reddem_count" );
@@ -287,9 +281,9 @@ public class CartActivity extends BaseActivity
 
         } else {
             for (int i=0; i<sortedCarts.size(); i++) {
-                System.out.println(sortedCarts.get(i).getDrinkable()+"   ayaaaaaaaaaa     "+sortedCarts.get(i).getRedeemed());
-//                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeemed().equals("0")) {
-                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeemed().equals("0")) {
+                System.out.println(sortedCarts.get(i).getDrinkable()+"   ayaaaaaaaaaa     "+sortedCarts.get(i).getRedeem());
+//                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeem().equals("0")) {
+                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeem().equals("0")) {
                     // calculate rewards
                    rewards = rewards + Integer.parseInt(sortedCarts.get(i).getRewards()) * Integer.parseInt(sortedCarts.get(i).getQuantity());
                     UserInfo info = new UserInfo();
@@ -304,7 +298,7 @@ public class CartActivity extends BaseActivity
 
                 }
 
-//                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeemed().equals("1")) {
+//                if (sortedCarts.get(i).getDrinkable().equals("1") && sortedCarts.get(i).getRedeem().equals("1")) {
                 if (sortedCarts.get(i).getDrinkable().equals("1")) {
                     // calculate redeemed free drink
                     redeems += 1;
@@ -397,7 +391,7 @@ public class CartActivity extends BaseActivity
         int index = 0;
         for (int i=0; i<sortedCarts.size(); i++) {
             int price = Integer.parseInt(sortedCarts.get(i).getPrice());
-            if (sortedCarts.get(i).getRedeemed().equals("1") &&  price > maxPrice) {
+            if (sortedCarts.get(i).getRedeem().equals("1") &&  price > maxPrice) {
                 maxPrice = price;
                 index = i;
             }
@@ -414,14 +408,13 @@ public class CartActivity extends BaseActivity
                     DialogUtils.showDialog(CartActivity.this, "Error", getString( R.string.empty_order), null, null);
                     return;
                 }
-
                 Log.d( TAG, "onClick: "+availableRedeem );
-
                 onBraintreeSubmit();
+
                 break;
 
             case R.id.addButton:
-                // Move to first page
+                //Move to first page
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("menuItem", 0);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -429,8 +422,6 @@ public class CartActivity extends BaseActivity
                 startActivity(intent);
                 overridePendingTransition( R.anim.pull_in_left, R.anim.push_out_right);
                 break;
-
-
 
             case R.id.redeemMinusButton:
                 if (availableRedeem == 0)
@@ -444,24 +435,23 @@ public class CartActivity extends BaseActivity
                 redeems -= 1;
                 Log.d( TAG, "onClick: "+ Integer.toString(redeems));
                 calculateOrder();
+
                 break;
 
             case R.id.redeemPlusButton:
-
                 int n = (UserPrefs.getUserInfo(this).getRewardStar() - UserPrefs.getUserInfo(this).getRewardStar() % 10) / 10;
                 Log.d( TAG, "onClick: rewww"+n );
 
                 if (aBooleanFreeDrinks){
-
                     if (availableRedeem < Integer.valueOf( strFreeDrinks )) {
                         availableRedeem += 1;
                         redeemTextView.setText( Integer.toString( availableRedeem ) );
                     }
-
                     redeems += 1;
                     Log.d( TAG, "onClick: " + Integer.toString( redeems ) );
                     calculateOrder();
                 }
+
                 else {
 
                     if (availableRedeem<n){
@@ -484,7 +474,6 @@ public class CartActivity extends BaseActivity
                 loadData();
                 finish();
                 overridePendingTransition( R.anim.pull_in_left, R.anim.push_out_right);
-
 
                 break;
         }
@@ -528,7 +517,7 @@ public class CartActivity extends BaseActivity
         }
 
         showLoader( R.string.empty);
-        Application.getServerApi().placeOrderToServer("text/plain",new OrderRequest( UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(availableRedeem), selectedWaitingTime, sortedCarts, nonce)).enqueue( new Callback<PlaceOrderResponse>(){
+        Application.getServerApi().placeOrderToServer("application/json",new OrderRequest( UserPrefs.getUserInfo(this).getId(), selectedLocationID, subTotalStr, redeemCreditStr, Float.toString(storeTax), taxAmountStr, totalPriceStr, Integer.toString(rewards), Integer.toString(availableRedeem), selectedWaitingTime, sortedCarts, nonce)).enqueue( new Callback<PlaceOrderResponse>(){
             @Override
             public void onResponse(Call<PlaceOrderResponse> call, Response<PlaceOrderResponse> response) {
                 try {
@@ -601,14 +590,12 @@ public class CartActivity extends BaseActivity
               /********************* Here we recieve the Nonec from the Brain Tree *********************/
                 DropInResult result = data.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
                 // use the result to update your UI and send the payment method nonce to your server
-
 //                if (result.getPaymentMethodType() == ANDROID_PAY) {
 //                    isReadyToPay();
 //                } else {
 //                    PaymentMethodNonce nonce = result.getPaymentMethodNonce();
 //                    String stringNonce = nonce.getNonce();
 //                    Log.d("mylog", "Result: " + stringNonce);
-//
 //                    sendOrderToServer(stringNonce);
 //                }
 
@@ -736,10 +723,8 @@ public class CartActivity extends BaseActivity
     }
 
     private void loadData() {
-
-//        showLoader(R.string.empty);
+//      showLoader(R.string.empty);
         Application.getServerApi().getCategories().enqueue(new Callback<GetCategoryResponse>(){
-
             @Override
             public void onResponse(Call<GetCategoryResponse> call, Response<GetCategoryResponse> response) {
 //                hideLoader();

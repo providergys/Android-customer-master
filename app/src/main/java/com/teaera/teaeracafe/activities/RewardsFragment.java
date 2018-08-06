@@ -23,7 +23,6 @@ import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.wallet.AutoResolveHelper;
-import com.google.android.gms.wallet.Cart;
 import com.google.android.gms.wallet.PaymentData;
 import com.teaera.teaeracafe.R;
 import com.teaera.teaeracafe.app.Application;
@@ -133,7 +132,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
         if (carts!=null)
         for (CartInfo cart : carts) {
-            if (cart.getRedeemed().equals("1")) {
+            if (cart.getRedeem().equals("1")) {
                 rewards = rewards - 10 * Integer.parseInt(cart.getQuantity());
             }
         }
@@ -328,7 +327,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
 //                   UserInfo cartInfo = new UserInfo();
 //                   cartInfo.setRewardStar(redeemCount);
-//                   Log.d( TAG, "onClick: "+cartInfo.getRedeemed());
+//                   Log.d( TAG, "onClick: "+cartInfo.getRedeem());
 
                 }
                 break;

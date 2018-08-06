@@ -147,8 +147,6 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
             }
         });
     }
-
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -181,7 +179,7 @@ public class RefundConfirmActivity extends BaseActivity implements View.OnClickL
                 rewards = rewards + Integer.parseInt(orderDetails.get(i).getRewards()) * Integer.parseInt(orderDetails.get(i).getQuantity());
             }
 
-//            if (orderDetails.get(i).getDrinkable().equals("1") && orderDetails.get(i).getRedeemed().equals("1")) {
+//            if (orderDetails.get(i).getDrinkable().equals("1") && orderDetails.get(i).getRedeem().equals("1")) {
 //                // calculate redeemed free drink
 //                float price = Float.parseFloat(orderDetails.get(i).getPrice());
 //                if (price > Constants.REWARD_MAX) {

@@ -17,7 +17,7 @@ public class CartInfo implements Serializable {
     private String price;
     private String rewards;
     private String drinkable;
-    private String redeemed;
+    private String redeem;
 
 
     public int getCartIndex() {
@@ -92,12 +92,12 @@ public class CartInfo implements Serializable {
         this.drinkable = drinkable;
     }
 
-    public String getRedeemed() {
-        return redeemed;
+    public String getRedeem() {
+        return redeem;
     }
 
-    public void setRedeemed(String redeemed) {
-        this.redeemed = redeemed;
+    public void setRedeem(String redeem) {
+        this.redeem = redeem;
     }
 
 }
