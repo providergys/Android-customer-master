@@ -342,7 +342,6 @@ public class CartActivity extends BaseActivity
         Log.d( TAG, "calculateOrder: Rewards"+rewards +nw_reward);
 
     }
-
     private void removeOrderCarts() {
 
         for (int i = 0; i<sortedCarts.size(); i++) {
