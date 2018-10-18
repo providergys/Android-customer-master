@@ -18,7 +18,8 @@
             android:layout_marginTop="20dp"
             android:id="@+id/relativeLayout13">
 
-            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/profileImage"
                 android:layout_width="150dp"
                 android:layout_height="150dp"

@@ -173,6 +173,7 @@ public class CartActivity extends BaseActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         locationSpinner.setAdapter(adapter);
         locationSpinner.setSelection( Application.getLocation());
+
         updateCartInfo( Application.getLocation());
 
         locationTextView            = findViewById( R.id.locationTextView1);
