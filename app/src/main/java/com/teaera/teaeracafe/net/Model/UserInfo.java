@@ -13,7 +13,7 @@ public class UserInfo {
     private String email;
     private String image;
     private int rewardStar;
-    private int balance;
+    private String balance;
 
     public String getId() {
         return id;
@@ -57,10 +57,10 @@ public class UserInfo {
         this.rewardStar = rewardStar;
     }
 
-    public int getBalance() {
+    public String getBalance() {
         return balance;
     }
-    public void setBalance(int balance) {
+    public void setBalance(String balance) {
         this.balance = balance;
     }
 
