@@ -13,7 +13,6 @@ import java.util.ArrayList;
  */
 
 public class UserResponse extends BaseResponse {
-
     private UserInfo user;
     private ArrayList<LocationInfo> locations;
     private ArrayList<CategoryInfo> categories;
