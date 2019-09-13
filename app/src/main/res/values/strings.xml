@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Teaeracafe</string>
-    <string name="facebook_app_id">143419103015108</string>
-
+    <!--<string name="facebook_app_id">143419103015108</string>-->
+    <string name="facebook_app_id">1154906181316462</string>
     // Loading
     <string name="load">Loading...</string>
     <string name="empty"></string>
@@ -23,7 +23,6 @@
     <string name="enter_last_speical_characters">Last name contains special characters.</string>
     <string name="enter_email">Please enter your email.</string>
     <string name="enter_password">Please enter your password.</string>
-    <string name="valid_email">Please enter valid email.</string>
 
 
     // Menu Screen

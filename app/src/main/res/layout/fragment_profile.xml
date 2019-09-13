@@ -18,8 +18,7 @@
             android:layout_marginTop="20dp"
             android:id="@+id/relativeLayout13">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/profileImage"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
@@ -76,9 +75,7 @@
                     android:textColor="@android:color/black"
                     android:textSize="20dp"
                     android:textStyle="bold"
-                    android:typeface="monospace"
-                    android:paddingTop="2dp"
-                    android:cursorVisible="true" />
+                    android:typeface="monospace" />
 
                 <ImageButton
                     android:id="@+id/editImageButton"
@@ -152,9 +149,7 @@
                     android:maxLength="50"
                     android:textColor="@android:color/black"
                     android:textSize="16dp"
-                    android:typeface="monospace"
-                    android:paddingTop="5dp"
-                    android:cursorVisible="true"/>
+                    android:typeface="monospace" />
 
                 <ImageView
                     android:id="@+id/imageView24"

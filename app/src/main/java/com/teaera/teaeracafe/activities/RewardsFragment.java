@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
@@ -23,6 +22,7 @@ import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.wallet.AutoResolveHelper;
+import com.google.android.gms.wallet.Cart;
 import com.google.android.gms.wallet.PaymentData;
 import com.teaera.teaeracafe.R;
 import com.teaera.teaeracafe.app.Application;
@@ -36,7 +36,6 @@ import com.teaera.teaeracafe.net.Response.UserProfileResponse;
 import com.teaera.teaeracafe.preference.CartPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.DialogUtils;
-import com.teaera.teaeracafe.utils.TinyDB;
 
 import java.util.ArrayList;
 
@@ -66,12 +65,6 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     private UserInfo userInfo;
     private int redeemCount = 0;
     private int balance = 0;
-    TinyDB tiny;
-    private static final String TAG = "RewardsFragment";
-
-    int star=0,strStarLocalValue=0;
-    boolean aBoolean=true;
-    String strStar="";
 
     public RewardsFragment() {
         // Required empty public constructor
@@ -87,9 +80,6 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         init();
-
-        tiny=new TinyDB( getActivity() );
-
     }
 
     private void init() {
@@ -116,55 +106,48 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
         Button thirdButton = getActivity().findViewById(R.id.thirdButton);
         thirdButton.setOnClickListener(this);
 
-        loadProfile();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
+        loadProfile();
     }
 
     private void updateProfile() {
         int rewards = userInfo.getRewardStar();
         ArrayList<CartInfo> carts = CartPrefs.getCarts(getActivity());
 
-        if (carts!=null)
-        for (CartInfo cart : carts) {
-            if (cart.getRedeem().equals("1")) {
-                rewards = rewards - 10 * Integer.parseInt(cart.getQuantity());
+        try{
+            for (CartInfo cart : carts) {
+                if (cart.getRedeemed().equals("1")) {
+                    rewards = rewards - 10 * Integer.parseInt(cart.getQuantity());
+                }
             }
-        }
 
-        Log.d( TAG, "updateProfile: "+rewards );
-
-        redeemCount = (rewards - rewards % 10) / 10;
-        if (redeemCount > 0) {
-            for (int i=1; i<=redeemCount; i++) {
-                drinkOptions.add(String.format("%d Free Drink", i));
+            redeemCount = (rewards - rewards % 10) / 10;
+            if (redeemCount > 0) {
+                for (int i=1; i<=redeemCount; i++) {
+                    drinkOptions.add(String.format("%d Free Drink", i));
+                }
+            } else {
+                drinkOptions.add("No Free Drink");
             }
-        } else {
-            drinkOptions.add("No Free Drink");
+
+            int star = rewards-redeemCount*10;
+
+            if (star <= 5) {
+                ratingBar1.setRating(star);
+                ratingBar2.setRating(0);
+            } else {
+                ratingBar1.setRating(5);
+                ratingBar2.setRating(star - 5);
+            }
+        }catch(Exception e){
+
         }
 
-        star = rewards-redeemCount*10;
-        if (strStarLocalValue!=0){
-
-            Log.d( TAG, "updateProfile: strStarLocalValue"+strStarLocalValue );
-            star = star+Integer.valueOf( strStarLocalValue);
-        }
-
-
-        Log.d( TAG, "updateProfile: "+star );
-
-        if (star <= 5) {
-            ratingBar1.setRating(star);
-            ratingBar2.setRating(0);
-        } else {
-            ratingBar1.setRating(5);
-            ratingBar2.setRating(star - 5);
-        }
 
         balanceTextView.setText("$" + userInfo.getBalance());
 
@@ -172,20 +155,6 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
                 drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
-                String reedemCount= drinkSpinner.getSelectedItem().toString();
-                Log.d( TAG, "onItemSelected: "+reedemCount );
-
-                if(reedemCount.contains(" ")){
-
-                    reedemCount= reedemCount.substring(0, reedemCount.indexOf(" "));
-                    Log.d( TAG, "onItemSelected: "+reedemCount );
-
-                    try{
-                        redeemCount=Integer.parseInt(reedemCount);
-                    }catch (Exception e){
-
-                    }
-                }
             }
 
             @Override
@@ -202,20 +171,28 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
         } else {
             drinkSpinner.setSelection(0);
         }
-        drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
+
+        try{
+            drinkTextView.setText(drinkSpinner.getSelectedItem().toString());
+        }catch (Exception e){
+
+        }
+
 
     }
 
+
     private void loadProfile() {
         showLoader(R.string.empty);
+
         Application.getServerApi().getUserProfile(new UserProfileRequest(UserPrefs.getUserInfo(getActivity()).getId())).enqueue(new Callback<UserProfileResponse>(){
+
             @Override
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
                 hideLoader();
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {
-                    hideLoader();
                     userInfo = response.body().getUser();
                     UserPrefs.saveUserInfo(getActivity(), userInfo);
                     updateProfile();
@@ -239,6 +216,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onResponse(Call<GenerateTokenResponse> call, Response<GenerateTokenResponse> response) {
+                hideLoader();
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {
@@ -252,6 +230,7 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onFailure(Call<GenerateTokenResponse> call, Throwable t) {
+                hideLoader();
                 if (t.getLocalizedMessage() != null) {
                     Log.d("New Order", t.getLocalizedMessage());
                 } else {
@@ -262,37 +241,25 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void loadBalance(String nonce) {
-        Log.d( TAG, "loadProfile: "+ UserPrefs.getUserInfo(getActivity()).getId()+" :::" +Integer.toString(balance)+" "+nonce);
-//        showLoader(R.string.empty);
+
+        showLoader(R.string.empty);
         Application.getServerApi().loadBalance(new LoadBalanceRequest(UserPrefs.getUserInfo(getActivity()).getId(), Integer.toString(balance), nonce)).enqueue(new Callback<UserProfileResponse>(){
 
             @Override
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
-//                hideLoader();
+                hideLoader();
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {
-
-                    if (strStar.equalsIgnoreCase( "2" )){
-                        strStarLocalValue=strStarLocalValue+2;
-                    }
-                    else if (strStar.equalsIgnoreCase( "4" )){
-
-                        strStarLocalValue=strStarLocalValue+4;
-                    }
-
                     userInfo = response.body().getUser();
                     UserPrefs.saveUserInfo(getActivity(), userInfo);
                     updateProfile();
-                    Toast.makeText( getActivity(), ""+response.body().getMessage(), Toast.LENGTH_SHORT ).show();
-                    Log.d( TAG, "onResponseAfter: "+star );
-
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
-//                hideLoader();
+                hideLoader();
                 if (t.getLocalizedMessage() != null) {
                     Log.d("Cart", t.getLocalizedMessage());
                 } else {
@@ -300,12 +267,12 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+
     }
 
     public void showLoader(int resId) {
         dialog = ProgressDialog.show(getActivity(), "",
                 getString(resId), true);
-
     }
 
     public void hideLoader() {
@@ -320,21 +287,12 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             case R.id.redeemButton:
                 if (redeemCount > 0) {
-                    tiny.putString( "reddem_count",String.valueOf( redeemCount ) );
-                    tiny.putBoolean( "reddem_check",true );
-                    Log.d( TAG, "onClick: "+redeemCount );
                     ((MainActivity)getActivity()).rewardMenu();
-
-//                   UserInfo cartInfo = new UserInfo();
-//                   cartInfo.setRewardStar(redeemCount);
-//                   Log.d( TAG, "onClick: "+cartInfo.getRedeem());
-
                 }
                 break;
 
             case R.id.orderButton:
                 break;
-
             case R.id.firstButton:
                 balance = 25;
                 getToken();
@@ -342,20 +300,15 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
 
             case R.id.secondButton:
                 balance = 50;
-                strStar="2";
-                Log.d( TAG, "onClick: "+star );
                 getToken();
                 break;
 
             case R.id.thirdButton:
                 balance = 100;
-                strStar="4";
-                Log.d( TAG, "onClick: "+star );
                 getToken();
                 break;
         }
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -405,4 +358,6 @@ public class RewardsFragment extends Fragment implements View.OnClickListener {
             }
         }
     }
+
+
 }

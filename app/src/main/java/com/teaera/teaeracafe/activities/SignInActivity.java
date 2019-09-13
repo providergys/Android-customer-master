@@ -84,6 +84,8 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 startActivity(intent);
                 overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
                 finish();
+                /////
+                ///
                 break;
             case R.id.forgot_button:
                 intent = new Intent(SignInActivity.this, ForgotActivity.class);
@@ -151,6 +153,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 hideLoader();
+                t.printStackTrace();
                 if (t.getLocalizedMessage() != null) {
                     Log.d("Login", t.getLocalizedMessage());
                 } else {

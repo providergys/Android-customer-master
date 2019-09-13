@@ -68,22 +68,23 @@ public class OrderReceiptActivity extends BaseActivity implements View.OnClickLi
 
     void init() {
 
-        orderNumberTextView         = findViewById(R.id.orderNumberTextView);
-        locationTextView            = findViewById(R.id.locationTextView);
-        estimateTextView            = findViewById(R.id.estimateTextView);
-        receivedDateTextView        = findViewById(R.id.receivedDateTextView);
-        rewardTextView              = findViewById(R.id.rewardTextView);
-        subtotalTextView            = findViewById(R.id.subtotalTextView);
-        creditTextView              = findViewById(R.id.creditTextView);
-        taxTextView                 = findViewById(R.id.taxTextView);
-        totalTextView               = findViewById(R.id.totalTextView);
-        stateImageView              = findViewById(R.id.stateImageView);
+        orderNumberTextView = findViewById(R.id.orderNumberTextView);
+        locationTextView = findViewById(R.id.locationTextView);
+        estimateTextView = findViewById(R.id.estimateTextView);
+        receivedDateTextView =  findViewById(R.id.receivedDateTextView);
+        rewardTextView = findViewById(R.id.rewardTextView);
+        subtotalTextView =  findViewById(R.id.subtotalTextView);
+        creditTextView = findViewById(R.id.creditTextView);
+        taxTextView = findViewById(R.id.taxTextView);
+        totalTextView = findViewById(R.id.totalTextView);
+        stateImageView = findViewById(R.id.stateImageView);
 
-        itemListView                = findViewById(R.id.itemListView);
-        refundButton                = findViewById(R.id.refundButton);
-        itemListAdapter             = new ItemListAdapter(this, orderDetails);
-
+        itemListView = findViewById(R.id.itemListView);
+        itemListAdapter = new ItemListAdapter(this, orderDetails);
         itemListView.setAdapter(itemListAdapter);
+
+
+        refundButton = findViewById(R.id.refundButton);
         refundButton.setOnClickListener(this);
 
         Button backButton = findViewById(R.id.backButton);
@@ -125,7 +126,6 @@ public class OrderReceiptActivity extends BaseActivity implements View.OnClickLi
 
     private void updateOrderState() {
         switch (orderInfo.getStatus()) {
-
             case "0":
                 stateImageView.setImageResource(R.drawable.line_received_state);
                 break;

@@ -1,14 +1,23 @@
 package com.teaera.teaeracafe.utils;
 
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -52,7 +61,7 @@ public class FacebookUtils {
 
     private static final String TAG = FacebookUtils.class.getSimpleName();
     public static CallbackManager callbackManager;
-
+    public static String email,firstname,lastname,name;
     public static void initFacebook(Context context) {
 
         FacebookSdk.sdkInitialize(context.getApplicationContext());
@@ -107,47 +116,125 @@ public class FacebookUtils {
                 new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
+
+
+
                         try {
-                            String name = object.getString("name");
+
+                             name = object.getString("name");
                             String[] separated = name.split(" ");
-                            String firstname = separated[0];
-                            String lastname = separated[1];
-                            String email = object.getString("email");
+                             firstname = separated[0];
+                             lastname = separated[1];
+                            try{
+                                email= object.getString("email");
 
-                            activity.showLoader(R.string.empty);
+                            }catch (Exception e){
+                                email=" ";
+                            }
 
-                            Application.getServerApi().socialLogin(new SocialLoginRequest(firstname, lastname, email, loginResult.getAccessToken().getToken())).enqueue(new Callback<UserResponse>(){
+                            if (email.isEmpty() || email.matches(" ")){
 
-                                @Override
-                                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                                    activity.hideLoader();
-                                    if (response.body().isError()) {
-                                        DialogUtils.showDialog(activity, "Error", response.body().getMessage(), null, null);
-                                    } else {
-                                        UserPrefs.saveUserInfo(activity, response.body().getUser());
-                                        UserPrefs.setLoggedIn(activity, true);
-                                        UserPrefs.setFBLogged(activity, true);
-                                        LocationPrefs.setLocations(activity, response.body().getLocations());
-                                        CategoryPrefs.setCategories(activity, response.body().getCategories());
-                                        PromotedMenuPrefs.setPromotedMenu(activity, response.body().getPromoted());
+                                Toast.makeText(activity,"No email id is associated with your facebook account",Toast.LENGTH_LONG).show();
+                                final Dialog dialog = new Dialog(activity);
+                                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                dialog.setCancelable(false);
+                                dialog.setContentView(R.layout.dialog_facebook_email);
+                                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-                                        Intent intent = new Intent(activity, MainActivity.class);
-                                        activity.startActivity(intent);
-                                        activity.overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
-                                        activity.finish();
+                                final EditText edit_txt_facebook=(EditText) dialog.findViewById(R.id.edit_txt_facebook);
+                                Button confirm = (Button) dialog.findViewById(R.id.buttonConfirm);
+                                Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
+
+                                buttonCancel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        dialog.dismiss();
                                     }
-                                }
+                                });
 
-                                @Override
-                                public void onFailure(Call<UserResponse> call, Throwable t) {
-                                    activity.hideLoader();
-                                    if (t.getLocalizedMessage() != null) {
-                                        Log.d("Social Login", t.getLocalizedMessage());
-                                    } else {
-                                        Log.d("Social Login", "Unknown error");
+                                confirm.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if(edit_txt_facebook.getText().toString().isEmpty()){
+                                            DialogUtils.showDialog(activity, "Oops", "Please add email id", null, null);
+                                        }else{
+                                            activity.showLoader(R.string.empty);
+
+                                            Application.getServerApi().socialLogin(new SocialLoginRequest(firstname, lastname, edit_txt_facebook.getText().toString(), loginResult.getAccessToken().getToken())).enqueue(new Callback<UserResponse>(){
+
+                                                @Override
+                                                public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                                                    activity.hideLoader();
+                                                    if (response.body().isError()) {
+                                                        DialogUtils.showDialog(activity, "Error", response.body().getMessage(), null, null);
+                                                    } else {
+                                                        UserPrefs.saveUserInfo(activity, response.body().getUser());
+                                                        UserPrefs.setLoggedIn(activity, true);
+                                                        UserPrefs.setFBLogged(activity, true);
+                                                        LocationPrefs.setLocations(activity, response.body().getLocations());
+                                                        CategoryPrefs.setCategories(activity, response.body().getCategories());
+                                                        PromotedMenuPrefs.setPromotedMenu(activity, response.body().getPromoted());
+
+                                                        Intent intent = new Intent(activity, MainActivity.class);
+                                                        activity.startActivity(intent);
+                                                        activity.overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
+                                                        activity.finish();
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<UserResponse> call, Throwable t) {
+                                                    activity.hideLoader();
+                                                    if (t.getLocalizedMessage() != null) {
+                                                        Log.d("Social Login", t.getLocalizedMessage());
+                                                    } else {
+                                                        Log.d("Social Login", "Unknown error");
+                                                    }
+                                                }
+                                            });
+                                            dialog.dismiss();
+                                        }
+
                                     }
-                                }
-                            });
+                                });
+                                dialog.show();
+                            }else{
+                                Application.getServerApi().socialLogin(new SocialLoginRequest(firstname, lastname, email, loginResult.getAccessToken().getToken())).enqueue(new Callback<UserResponse>(){
+
+                                    @Override
+                                    public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                                        activity.hideLoader();
+                                        if (response.body().isError()) {
+                                            DialogUtils.showDialog(activity, "Error", response.body().getMessage(), null, null);
+                                        } else {
+                                            UserPrefs.saveUserInfo(activity, response.body().getUser());
+                                            UserPrefs.setLoggedIn(activity, true);
+                                            UserPrefs.setFBLogged(activity, true);
+                                            LocationPrefs.setLocations(activity, response.body().getLocations());
+                                            CategoryPrefs.setCategories(activity, response.body().getCategories());
+                                            PromotedMenuPrefs.setPromotedMenu(activity, response.body().getPromoted());
+
+                                            Intent intent = new Intent(activity, MainActivity.class);
+                                            activity.startActivity(intent);
+                                            activity.overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
+                                            activity.finish();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<UserResponse> call, Throwable t) {
+                                        activity.hideLoader();
+                                        if (t.getLocalizedMessage() != null) {
+                                            Log.d("Social Login", t.getLocalizedMessage());
+                                        } else {
+                                            Log.d("Social Login", "Unknown error");
+                                        }
+                                    }
+                                });
+
+                            }
+
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -169,4 +256,7 @@ public class FacebookUtils {
     public static void logOut() {
         LoginManager.getInstance().logOut();
     }
+
+
+
 }

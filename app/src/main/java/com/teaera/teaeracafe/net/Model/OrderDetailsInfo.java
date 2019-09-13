@@ -19,15 +19,6 @@ public class OrderDetailsInfo implements Serializable {
     private String refund_quantity;
     private String drinkable;
     private String refunded;
-//    private String redeem;
-//
-//    public String getRedeem() {
-//        return redeem;
-//    }
-//
-//    public void setRedeem(String redeem) {
-//        this.redeem = redeem;
-//    }
 
     public String getId() {
         return id;

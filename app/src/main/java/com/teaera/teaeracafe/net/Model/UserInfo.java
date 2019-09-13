@@ -43,6 +43,7 @@ public class UserInfo {
         this.email = email;
     }
 
+
     public String getImage() {
         return image;
     }

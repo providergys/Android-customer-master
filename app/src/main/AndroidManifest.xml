@@ -19,11 +19,11 @@
         android:theme="@style/AppTheme"
         tools:node="merge"
         tools:replace="android:icon">
+        <activity android:name=".activities.Main2Activity"></activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
-        <!-- Enables the Google Payment API -->
+            android:value="@string/facebook_app_id" /> <!-- Enables the Google Payment API -->
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
@@ -33,55 +33,78 @@
             android:authorities="${applicationId}.my.package.name.provider"
             android:exported="false"
             android:grantUriPermissions="true">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
-
+                android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".activities.SplashActivity">
+        <activity
+            android:name=".activities.SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.SignInActivity" />
-        <activity android:name=".activities.SignUpActivity" />
-        <activity android:name=".activities.ForgotActivity" />
-        <activity android:name=".activities.MainActivity" />
-        <activity android:name=".activities.ItemCustomizeActivity" />
-        <activity android:name=".activities.CartActivity" />
-        <activity android:name=".activities.SubMenuActivity" />
-        <activity android:name=".activities.OrderReceiptActivity" />
-        <activity android:name=".activities.PaymentEditActivity" />
+        <activity
+            android:name=".activities.SignInActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.SignUpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ForgotActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ItemCustomizeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.CartActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.SubMenuActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.OrderReceiptActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.PaymentEditActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".utils.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".utils.FirebaseIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-        <activity android:name=".activities.UpdatePasswordActivity" />
-        <activity android:name=".activities.RefundConfirmActivity"/>
-
-        <activity android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
-            android:launchMode="singleTask">
-
+        <activity
+            android:name=".activities.UpdatePasswordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.RefundConfirmActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="${applicationId}.braintree" />
             </intent-filter>
-
         </activity>
     </application>
+
 </manifest>

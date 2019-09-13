@@ -89,11 +89,11 @@
 
         <TextView
             android:id="@+id/quantityTextView"
-            android:layout_width="45dp"
+            android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="120"
+            android:text="12"
             android:textAlignment="center"
             android:textSize="18dp"
             android:typeface="monospace" />

@@ -1,8 +1,12 @@
 package com.teaera.teaeracafe.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Base64;
 import android.util.Log;
 
 import com.teaera.teaeracafe.R;
@@ -15,6 +19,8 @@ import com.teaera.teaeracafe.preference.PromotedMenuPrefs;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.DialogUtils;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -29,7 +35,19 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String hashKey = new String(Base64.encode(md.digest(), 0));
 
+                //Log.i(TAG, "printHashKey() Hash Key: " + hashKey);
+//                System.out.println("sdgggggggggggggggggggg"+hashKey);
+            }
+        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
+        }
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {

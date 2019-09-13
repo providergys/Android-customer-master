@@ -111,13 +111,23 @@ public interface ServerAPI {
             @Body GetPromotedMenuRequest request
     );
 
+//    @POST("placeOrder")
+//    Call<PlaceOrderResponse> placeOrderToServer(
+//            @Body OrderRequest request
+//    );
+
+
     @POST("placeOrder")
-    Call<PlaceOrderResponse> placeOrderToServer(  @Header("Content-Type") String content_type,@Body OrderRequest request  );
+    Call<PlaceOrderResponse> placeOrderToServer(@Header("Content-Type") String content_type,@Body OrderRequest request);
 
+//    @POST("refundOrders")
+//    Call<RefundOrdersResponse> refundOrders(
+//            @Body RefundOrdersRequest request
+//    );
     @POST("refundOrders")
-    Call<RefundOrdersResponse> refundOrders(@Header("Content-Type") String content_type,@Body RefundOrdersRequest request
+    Call<RefundOrdersResponse> refundOrders(@Header("Content-Type") String content_type,
+                                            @Body RefundOrdersRequest request
     );
-
     @POST("getOrders")
     Call<GetOrderResponse> getOrders(
             @Body GetOrderRequest request

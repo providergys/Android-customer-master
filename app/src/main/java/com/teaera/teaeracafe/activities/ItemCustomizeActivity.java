@@ -4,26 +4,40 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.teaera.teaeracafe.R;
 import com.teaera.teaeracafe.adapter.OptionListAdapter;
+import com.teaera.teaeracafe.app.Application;
 import com.teaera.teaeracafe.net.Model.CartInfo;
 import com.teaera.teaeracafe.net.Model.CategoryInfo;
 import com.teaera.teaeracafe.net.Model.MenuInfo;
+import com.teaera.teaeracafe.net.Model.OptionInfo;
 import com.teaera.teaeracafe.preference.CartPrefs;
 import com.teaera.teaeracafe.utils.Constants;
 import com.teaera.teaeracafe.utils.DialogUtils;
+import com.teaera.teaeracafe.utils.DownloadImageTask;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+import static android.view.View.inflate;
 
 public class ItemCustomizeActivity extends BaseActivity implements View.OnClickListener, OptionListAdapter.OnChangeOptionListener, OptionListAdapter.OnSpinnerClickListener {
 
@@ -50,7 +64,7 @@ public class ItemCustomizeActivity extends BaseActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_customize);
 
-        menuInfo     = (MenuInfo) getIntent().getSerializableExtra("menu");
+        menuInfo = (MenuInfo) getIntent().getSerializableExtra("menu");
         categoryInfo = (CategoryInfo) getIntent().getSerializableExtra("category");
 
         for (int i = 0 ; i < menuInfo.getOptions().size(); i++) {
@@ -58,15 +72,13 @@ public class ItemCustomizeActivity extends BaseActivity implements View.OnClickL
         }
 
         cartImageView =  findViewById(R.id.cartImageView);
-        cartTextView  = findViewById(R.id.cartTextView);
+        cartTextView = findViewById(R.id.cartTextView);
 
-        itemTextView  = findViewById(R.id.itemTextView);
+        itemTextView = findViewById(R.id.itemTextView);
         menuImageView = findViewById(R.id.menuImageView);
-
         Picasso.with(this)
                 .load(Constants.SERVER_IMAGE_PREFIX + menuInfo.getImage())
                 .into(menuImageView);
-
         itemTextView.setText(menuInfo.getMenuName());
 
 
@@ -95,7 +107,6 @@ public class ItemCustomizeActivity extends BaseActivity implements View.OnClickL
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
 
@@ -217,7 +228,8 @@ public class ItemCustomizeActivity extends BaseActivity implements View.OnClickL
         cartInfo.setPrice(menuInfo.getPrice());
         cartInfo.setRewards(menuInfo.getRewards());
         cartInfo.setDrinkable(categoryInfo.getDrinkable());
-        cartInfo.setRedeem("0");
+        cartInfo.setRedeemed("0");
+
 
         carts.add(cartInfo);
         CartPrefs.setCarts(this, carts);

@@ -11,6 +11,7 @@ import com.google.android.gms.wallet.WalletConstants;
  */
 public class Constants {
 
+
     public static final String SERVER_PROFILE_IMAGE_PREFIX = "http://34.230.22.171/images/profile/";
     public static final String SERVER_IMAGE_PREFIX = "http://34.230.22.171/images/img/";
 
@@ -28,7 +29,6 @@ public class Constants {
     public static final String EXTRA_FULL_WALLET = "EXTRA_FULL_WALLET";
 
     public static final String CURRENCY_CODE_USD = "USD";
-
     // values to use with KEY_DESCRIPTION
     public static final String DESCRIPTION_LINE_ITEM_SHIPPING = "Shipping";
     public static final String DESCRIPTION_LINE_ITEM_TAX = "Tax";

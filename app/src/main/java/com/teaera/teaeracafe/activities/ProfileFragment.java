@@ -29,7 +29,6 @@ import com.teaera.teaeracafe.R;
 import com.teaera.teaeracafe.app.Application;
 import com.teaera.teaeracafe.net.Model.UserInfo;
 import com.teaera.teaeracafe.net.Request.UpdateUserInfoRequest;
-import com.teaera.teaeracafe.net.Request.UserProfileRequest;
 import com.teaera.teaeracafe.net.Response.UserProfileResponse;
 import com.teaera.teaeracafe.preference.UserPrefs;
 import com.teaera.teaeracafe.utils.Constants;
@@ -85,8 +84,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -97,8 +94,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init() {
-
-        loadProfile();
         userInfo = UserPrefs.getUserInfo(getActivity());
 
         linkedRelativeLayout = (RelativeLayout) getActivity().findViewById(R.id.linkedRelativeLayout);
@@ -108,16 +103,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             linkedRelativeLayout.setVisibility(View.INVISIBLE);
         }
 
-        nameEditText        = (EditText) getActivity().findViewById(R.id.nameEditText);
-        emailEditText       = (EditText) getActivity().findViewById(R.id.emailEditText);
-        passwordEditText    = (EditText) getActivity().findViewById(R.id.passwordEditText);
-        paymentEditText     = (EditText) getActivity().findViewById(R.id.paymentEditText);
-        facebookEditText    = (EditText) getActivity().findViewById(R.id.facebookEditText);
-        profileImage        = (CircleImageView) getActivity().findViewById(R.id.profileImage);
+        nameEditText = (EditText) getActivity().findViewById(R.id.nameEditText);
+        emailEditText = (EditText) getActivity().findViewById(R.id.emailEditText);
+        passwordEditText = (EditText) getActivity().findViewById(R.id.passwordEditText);
+        paymentEditText = (EditText) getActivity().findViewById(R.id.paymentEditText);
+        facebookEditText = (EditText) getActivity().findViewById(R.id.facebookEditText);
+        profileImage = (CircleImageView) getActivity().findViewById(R.id.profileImage);
 
         nameEditText.setText(userInfo.getFirstname() + " " + userInfo.getLastname());
         emailEditText.setText(userInfo.getEmail());
-
         Picasso.with(getActivity())
                 .load(Constants.SERVER_PROFILE_IMAGE_PREFIX + userInfo.getImage())
                 .into(profileImage);
@@ -137,7 +131,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         Button saveButton = (Button) getActivity().findViewById(R.id.saveButton);
         saveButton.setOnClickListener(this);
 
-//        updateEditable(false);
+        updateEditable(false);
     }
 
     private void updateEditable(boolean editable) {
@@ -178,6 +172,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
+
         String[] separated = username.split(" ");
         if (separated.length < 2) {
             DialogUtils.showDialog(getActivity(), "Error", getString(R.string.enter_name), null, null);
@@ -207,7 +202,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                         DialogUtils.showDialog(getActivity(), "Confirm", response.body().getMessage(), null, null);
                         userInfo = response.body().getUser();
                         UserPrefs.saveUserInfo(getActivity(), userInfo);
-//                      updateEditable(false);
+                        updateEditable(false);
                     }
                 }
 
@@ -225,7 +220,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void selectImage() {
-        final CharSequence[] items = { "Take Photo", "Choose from Library", "Cancel" };
+        final CharSequence[] items = { "Take Photo", "Choose from Library",
+                "Cancel" };
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Photo");
         builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -250,12 +246,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         builder.show();
     }
 
-    private void cameraIntent() {
+    private void cameraIntent()
+    {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_CAMERA);
     }
 
-    private void galleryIntent() {
+    private void galleryIntent()
+    {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);//
@@ -291,6 +289,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
         if (data != null) {
@@ -298,6 +297,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             imageCropFunction();
         }
     }
+
 
     private void onCaptureImageResult(Intent data) {
         Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
@@ -338,6 +338,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     public void imageCropFunction() {
+
         // Image Crop Code
         try {
             Intent CropIntent = new Intent("com.android.camera.action.CROP");
@@ -360,6 +361,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     private void uploadImage(byte[] imageBytes) {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", "image.jpg", requestFile);
@@ -371,9 +373,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
-
                 hideLoader();
-
                 if (response.body().isError()) {
                     DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
                 } else {
@@ -417,6 +417,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             case R.id.saveButton:
                 saveUserInfo();
                 break;
+
         }
     }
 
@@ -430,32 +431,4 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             dialog.dismiss();
         }
     }
-
-    private void loadProfile() {
-        showLoader(R.string.empty);
-        Application.getServerApi().getUserProfile(new UserProfileRequest(UserPrefs.getUserInfo(getActivity()).getId())).enqueue( new Callback<UserProfileResponse>(){
-            @Override
-            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
-                hideLoader();
-                if (response.body().isError()) {
-                    DialogUtils.showDialog(getActivity(), "Error", response.body().getMessage(), null, null);
-                } else {
-                    hideLoader();
-                    userInfo = response.body().getUser();
-                    UserPrefs.saveUserInfo(getActivity(), userInfo);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
-                hideLoader();
-                if (t.getLocalizedMessage() != null) {
-                    Log.d("Rewards", t.getLocalizedMessage());
-                } else {
-                    Log.d("Rewards", "Unknown error");
-                }
-            }
-        });
-    }
-
 }
